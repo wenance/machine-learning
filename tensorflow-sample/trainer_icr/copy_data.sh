@@ -1,0 +1,1 @@
+gsutil cp -r /tmp/data gs://liquid-layout-213214-mlengine

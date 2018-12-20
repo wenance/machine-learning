@@ -1,0 +1,419 @@
+\documentclass[10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage[document]{ragged2e}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\usepackage{graphicx}
+
+\title{Wenance}
+\subtitle{Introducción a Google Cloud ML Engine}
+\date{\today}
+\date{}
+\author{Silvio Musolino, Bernabé Panarello}
+
+% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+
+\begin{document}
+
+\maketitle
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Explotación de datos - Conceptos}
+\begin{frame}[fragile]{Explotación de datos - Conceptos}
+
+  \begin{tabular}{p{0.7\textwidth} c}
+  	\textbf{Data Mining}\newline
+     \textit{« es el proceso de análisis secundario de grandes bases de datos con el objetivo de encontrar relaciones insospechadas que sean de interés o valor»} (Hand, 1998) & \raisebox{-\totalheight}{\includegraphics[width=0.2\textwidth]{pictures/bigdata.jpg}}\\\\
+     
+     \textbf{Machine learning}\newline
+     \textit{«es una rama de la IA que se ocupa del diseño y la aplicación de algoritmos de aprendizaje»} (Mena, 1999) &  \raisebox{-\totalheight}{\includegraphics[width=0.3\textwidth]{pictures/tensorflow.png}}\\\\ 
+     
+     \textbf{Statistical Analysis}\newline
+      \textit{«metodología para extraer información de los datos y expresar la
+cantidad de incertidumbre en las decisiones que tomamos»} (C. R. Rao, 1989) & \raisebox{-\totalheight}{\includegraphics[width=0.2\textwidth]{pictures/statistical_cluster.png}}\\
+
+  \end{tabular}
+
+\end{frame}
+
+\begin{frame}[fragile]{Clasificación de algorítmos de Machine Learning}
+  \begin{figure}
+    \includegraphics[width=0.8\textwidth]{pictures/ml-classes.jpeg}
+    \caption{Machine Learning Algorithms}
+  \end{figure}
+\end{frame}
+
+
+\section{Aprendizaje Supervisado}
+
+\begin{frame}[fragile]{Aprendizaje Supervisado}
+
+  El \emph{Aprendizaje Supervisado} es una técnica de machine learning que tiene el fin de deducir una función a partir de datos de entrenamiento.
+  \vfill
+  \begin{figure}
+  	 \includegraphics[width=.5\textwidth,keepaspectratio]{pictures/supervised-learning.jpg}
+  \end{figure}
+  \vfill
+  Los datos de entrenamiento consisten de pares de objetos (normalmente vectores): una componente del par son los datos de entrada y el otro, los resultados deseados
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplos - Taxi Fare Estimator}
+  \textit{\textbf{Dados los datos de a un viaje en taxi (origen, destino, hora, etc), predecir el costo del viaje}}
+  \vfill
+  \begin{figure}
+    \includegraphics[width=.4\textwidth,keepaspectratio]{pictures/fare-estimator.jpg} 
+  \end{figure}
+  \vfill
+  \textit{En este caso, $X$ es un vector de $n$ posiciones mientras que  $Y$ es un número real representando el valor del viaje}
+  
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplos - Client Scoring}
+  \textit{\textbf{Dados los datos de un potencial cliente y un crédito, predecir si el cliente entrará en mora en los próximos 60 días}}
+    \vfill
+    \begin{figure}
+    	\includegraphics[width=.4\textwidth,keepaspectratio]{pictures/client-score.jpg} 
+  \end{figure}
+  \textit{En este caso, $X$ es un vector de $n$ posiciones con los datos del cliente y el crédito mientras que $y$ es un número real entre $0$ y $1$.}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplos - Hand written digits}
+  \textit{\textbf{Dada una imagen de un dígito manuscrito, inferir de que dígito se trata}}
+  \vfill
+  \begin{figure}
+  	\includegraphics[width=.6\textwidth,keepaspectratio]{pictures/icr-8.png} 
+    \end{figure}
+  \vfill
+  \textit{En este caso, si la imagen de entrada está en escala de grises de tamaño $(width \times height)$, representamos $X$ como una \emph{matriz} donde cada posición representa el valor de brillo de un pixel, y como salida se define un vector $Y$ de dimensión $k$ para la cantidad de clases a clasificar}.
+\end{frame}
+
+\section{Ejemplo práctico - Regresión Logística}
+
+\begin{frame}[fragile]{Clasificación Binaria - Regresión logística con modelo lineal}
+\textbf{Modelo}
+\begin{itemize}
+\item Consideremos el siguiente dataset:
+
+  \begin{table}
+
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|r|}
+
+    \hline
+    Edad ($x_1$) & Sueldo($x_2$) & Mora (0=No, 1=Si)\\ \hline
+	25 & 30000& 1  \\ \hline
+	24 & 40000& 0  \\ \hline
+	52 & 41000& 1  \\ \hline
+    23 & 50000  & 0 \\ \hline
+	... & ...& ...  \\ \hline
+
+ \end{tabular}
+ \end{table}
+ \item Queremos apoximar $f(X) = y$, donde, aplicado a una sola muestra, $X$ e $y$ se interpretan como:
+ \begin{itemize}
+ \item $X = [x_1,x_2] \in \mathbb{R}^{2}$
+ \item $y \in \{0,1\}$
+ \end{itemize}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Clasificación Binaria - Regresión logística con modelo lineal}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/linear_vs_nonlinear_problems.png}
+  \caption{Linealmente separable (A) vs no linealmente separable (B)}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Aprendizaje Supervisado - Modelo Lineal}
+
+  \begin{figure}
+  \includegraphics[width=.6\textwidth,keepaspectratio]{pictures/logisticregression_s.png}
+\caption{Grafo de cómputo regresión logística lineal.}  
+\end{figure}
+  \begin{itemize}
+  
+  \item $X = [x_1, x_2]$, $y \in \{0,1\}$
+  \item $g_{W}(X) = sigmoid({w_1}{x_1} + {w_2}{x_2} + b)$. Donde  $W = \{w_1, w_2\}$ y $b$ el término independiente .
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Función \emph{sigmoidea} o logística (función de activación)}
+  \begin{figure}
+    \includegraphics[width=0.8\textwidth,keepaspectratio]{pictures/sigmoid.png}
+    \caption{Gráfica de función logística $g(z)=\frac{1}{1+\exp(-z)}$.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Función \emph{sigmoidea} o logística (cont.)}
+  \textbf{Interpretación}
+  \begin{itemize}
+    \item  "Mapea" la salida de la función lineal en el intervalo $(0,1)$
+    \item  Se puede interpretar como la probabilidad de que $X$ sea de clase 1 (dado un $W$)
+    \item  Si la salida de $g(X) > 0.5 \rightarrow$ Predecir clase 1
+    \item  Si la salida de $g(X) < 0.5 \rightarrow$ Predecir clase 0.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Utilizando Tensores}
+  \textbf{¿Qué son?}
+  \textit{El nombre TensorFlow deriva de las operaciones qué las redes neuronales realizan sobre arrays multidimensionales de datos. Estos arrays multidimensionales son referidos como "tensores"}
+  \vfill
+  \begin{figure}
+    \includegraphics[width=.6\textwidth,keepaspectratio]{pictures/tensor.png}
+    \caption{Representación gráfica de tensores de distintas dimensiones.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Continuando con el ejemplo ...}
+  \textbf{Generalización a $n$ muestras}
+  \begin{itemize}
+    \item Podemos generalizar nuestro modelo de ejemplo a notación de tensores, de manera que se pueda aplicar a un \emph{batch} de n muestras.
+
+ 
+  \end{itemize}
+
+  \[
+  \boldmath{X} \in \mathbb{R}^{n \times 2} = 
+  \begin{bmatrix} x_1^1 & x_2^1 \\
+ 				x_1^2 & x_2^2 \\
+                \vdots & \vdots \\
+                x_1^n & x_2^n \\
+                
+   \end{bmatrix},
+   \boldmath{y} \in \{0,1\}^{n \times 1} =
+   \begin{bmatrix} y^1 \\
+ 				y^2  \\
+                \vdots  \\
+                y^n  \\
+                
+  \end{bmatrix}
+  \]
+  \[
+  (\boldmath{W^t} \times \boldmath{X}) \oplus b\in \mathbb{R}^{1 \times n}
+ \]
+  \begin{itemize}
+    \item $\oplus$: Suma element-wise sobre dimensión principal (batch).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Función de error}
+  \textbf{Error Cuadrático Medio (RMSE)}
+  \begin{itemize}
+    \item dado el tensor $X \in \mathbb{R}^{n \times 2}$ y el tensor $Y \in \mathbb{R}^{n \times 1}$ 
+    \item Se define el $RMSE_{<W,b>}(X,y) = \sqrt{\frac{1}{n}\Sigma_{i=1}^{n}{\Big(g_{<W,b>}(X^i) -y^i\Big)^2}}$
+    \item  Mide cuanto el modelo (utilizando el conjunto de parámetros (\{W,b\}) "se equivocó" al predecir respecto de un batch del dataset.
+    \item  ¿A que recta van a corresponder los parámetros que minimicen el error?.
+    \item \textit{Clase 0} $\rightarrow x_1w_1 + x_2w_2 + b < 0$.
+    \item \textit{Clase 1} $\rightarrow x_1w_1 + x_2w_2 + b > 0$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Minimización de la función de Error}
+ \begin{itemize}
+ \item  Es un problema de optimización.
+ \item  Queremos ajustar los parámetros $W$ y $b$ de manera que el error respecto al dataset sea mínimo.
+ \item  Para esto primero dividimos el dataset en 3 partes:
+	\begin{itemize}
+	\item \textit{\textbf{Training}}: Datos que se utilizan para ajustar los parámetros
+    \item \textit{\textbf{Validation}}: Nos sirven como guía para ajustar hiperparámetros y comparar distintos modelos.
+    \item \textit{\textbf{Testing}}: Utilizados para testear el modelo final y ver si generaliza bien.
+ 
+	\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+% \begin{frame}[fragile]{Aprendizaje Supervisado - Modelo de Tensorflow}
+%   \textbf{Modelo}
+%   \begin{itemize}
+%   \item Dado un dataset $<n, X, Y>$ con 
+%     \begin{itemize}
+%       \item $n$ es la cantidad de muestras a utilizar para el entrenamiento.
+%       \item $m$ es la dimensión cada muestra.
+%       \item $X \in \mathbb{R}^{n \times m}$ es una vector que representa uno de los $n$ datos de entrada de dimensión $m$ sobre el que realizaremos el proceso de aprendizaje del modelo.
+%       \item $Y \in \mathbb{R}^{n \times k}$ representa los $k$ valores esperados a obtener por cada muestra una de las $n$ muestras.
+%       \item $k$ es la cantidad de clases de valores posibles a estimar (por ejemplo $k=10$ para el caso de los dígitos del 0 al 9)
+%       \item se define un vector $W \in \mathbb{R}^{m \times k}$ como el conjunto de parámetros que se van a ajustar durante el proceso de aprendizaje.
+%     \end{itemize}
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}[fragile]{Aprendizaje Supervisado - Modelo de Tensorflow}
+%   \textbf{Función Objetivo}
+%   \begin{itemize}
+%   \item Es la función que queremos aproximar $0 \leq f(X) \leq 1$ que explica (predicen) dichos datos $f(X) \in \mathbb{R}^{n \times k}$
+%     \begin{equation}
+%   	  f(X)=W^T X + b
+%     \end{equation}
+% 	donde $b$ es el termino independiente $b \in \mathbb{R}^{n \times k}$ de cada una de las $n$ muestras.
+%     \item Luego se define la \textit{Función Sigmodea} $g(z) \in \mathbb{R}^{n \times k}$, también llamada \textit{función Logística}, para expresar el resultado como una función de probabilidades.
+%       \begin{equation}
+%         g(z)= \frac{1}{1 + e^{-z}}
+%       \end{equation}
+%     \item De este modo se aplica a $f(X)$
+%       \begin{equation}
+%         g_f(X)= \frac{1}{1 + e^{-(W^T X + b})}
+%       \end{equation}
+%   \end{itemize}
+% \end{frame}
+
+% \begin{frame}[fragile]{Aprendizaje Supervisado - Modelo de Tensorflow}
+%   \textbf{Interpretación de $g_f(X)$}
+%   \begin{itemize}
+%     \item $g_f(X)=$ es la probabilidad estimada de que $Y$ sea igual a $C$ cuando tomamos como entrada a $X$.
+%     \item En términos de probabilidades sería
+%     \begin{equation}
+%     	g_f(X)=P(Y=C | X;f(X)) 
+%     \end{equation}
+%     para $C \in \mathbb{R}^{k}$ 
+ 
+%   \end{itemize}
+%   \vfill
+%   \textcolor{red}{\textit{Probabilidad de que $Y=C$, dado $X$, parametrizado por $f(X)$}}
+% \end{frame}
+
+
+\begin{frame}[fragile]{Learning - Algoritmo Gradient Descent}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/gdescentcurve2.png}
+\caption{Superficie de error y descenso en dirección del gradiente (no se muestra la dimensión del término de \emph{bias} b ).}
+
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Learning - Algoritmo Gradient Descent (v. minibatch)}
+Entrada: $\boldmath{X} \in \mathbb{R}^{n \times 2}, \boldmath {y} \in \{0,1\}^{n \times 1}$: Training set, donde n es el tamaño del conjunto.
+\begin{enumerate}
+\item Inicializar W y b (random)
+\item Repetir hasta que el error sea aceptablemente pequeño (o algún otro criterio de parada)
+\begin{enumerate}
+\item Repetir hasta que se acaben los datos de entrenamiento
+\begin{enumerate}
+\item $(X^*, y^*) \leftarrow nextBatch(X, y)$ //Próximo batch de training data
+\item $W, b \leftarrow W, b - \alpha \cdot \nabla_{error<W,b>}(X^*,y^*)$
+
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+donde:
+\begin{itemize}
+\item $\nabla_{error<W,b>}(X,y)$: Es el \emph{gradiente} del error respecto de de cada parámetro $w_i$ y b. Es decir, cuanto "crece" el error respecto a cada parámetro ajustable.
+\item $\alpha$: Learning rate. 
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Problemas numéricos}
+  \textbf{Vanishing gradient problem}
+  \begin{itemize}
+    \item Durante el entrenamiento el gradiente tiende a cero deteniendo el progreso del entrenamiento.
+  \end{itemize}
+  \vfill
+  
+  \textbf{Overfitting}
+  \begin{itemize}
+    \item El modelo se sobre ajusta a los datos de entrenamiento perdiendo capacidad en la generalización.
+  \end{itemize}
+  \vfill
+  
+  \textbf{Exploding gradient problem}
+  \begin{itemize}
+    \item Durante el entrenamiento, el gradiente diverge (NaN).
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}[fragile]{Hay otros modelos mas complejos}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/multilayerex.png}
+    \caption{Perceptrón multicapa. Cada eje corresponde a un parámetro ajustable.}
+
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{mas complejo todavía...}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/alexnet.jpg}
+  \caption{Arquitectura AlexNet, cerca de 62M de parámetros ajustables. (ver https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Problemas de complegidad computacional}
+  \begin{itemize}
+    \item A medida que aumentan la cantidad de nodos (neuronas), aumenta muchísimo ($O(n^2)$) la cantidad de conexiones (parámetros a ajustar).
+    \item El cálculo del gradiente para modelos multicapa requiere la ejecución del algorítmo de back-propagation sobre un gran número de parámetros, lo cual es computacionalmente intensivo.
+    \item Por ejemplo, entrenar una AlexNet con una nVidia Tesla k40c lleva alrededor de 5 días.
+\end{itemize}
+\end{frame}
+
+\section{Tensorflow}
+
+\begin{frame}[fragile]{Tensoflow - Modelo}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/model-training.png}
+\end{frame}
+
+\begin{frame}[fragile]{Tensoflow - Grafos de cómputo}
+\begin{itemize}
+\item Es una librería que permite definir grafos de cómputo sobre tensores y luego ejecutarlos.
+
+\end{itemize}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/tf_graph_example.png}
+  \caption{Representación gráfico de un grafo de cómputo.}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]{Tensoflow - Grafos de cómputo (cont.)}
+\begin{itemize}
+\item Los grafos de cómputo pueden ejecutarse facilmente en paralelo utilizando procesadores diversos.
+
+\end{itemize}
+ \begin{figure}
+  \includegraphics[width=.7\textwidth,height=.7\textheight,keepaspectratio]{pictures/compgraphparalel.png}
+  \caption{Ejecución en dos GPU.}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Tensoflow - Operaciones sobre tensores}
+ \begin{figure}
+  \includegraphics[width=.7\textwidth,height=.7\textheight,keepaspectratio]{pictures/reshape_transpose.png}
+  \caption{Operaciones reshape y transpose}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]{MNIST - Modelo Deep Convolutional Neural Network}
+ \begin{figure}
+  \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{pictures/mnist_conv_model_1.png}
+  \caption{Arquitectura convolucional profunda para reconocimiento de dígitos manuscritos (MNIST)}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+ \centering
+ \Huge
+ \textbf{\textit{¿ Preguntas ?}}
+ \vfill
+ \includegraphics[width=.3\textwidth,keepaspectratio]{pictures/bmo.jpg}
+ 
+\end{frame}
+
+\end{document}
+
+
